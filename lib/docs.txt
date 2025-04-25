@@ -1,0 +1,102 @@
+SHOP MESSAGE
+
+await sock.sendMessage(jid, {
+   image: {
+      url: 'https://example.jpg'
+   },
+   caption: 'Body',
+   title: 'Title',
+   subtitle: 'Subtitle',
+   footer: 'Footer',
+   shop: {
+      surface: 1, // 2 | 3 | 4
+      id: 'https://api.ssateam.my.id'
+   },
+   hasMediaAttachment: false, // or true
+   viewOnce: true
+})
+
+// Video
+await sock.sendMessage(jid, {
+   video: {
+      url: 'https://example.jpg'
+   },
+   caption: 'Body',
+   title: 'Title',
+   subtitle: 'Subtitle',
+   footer: 'Footer',
+   shop: {
+      surface: 1, // 2 | 3 | 4
+      id: 'https://api.ssateam.my.id'
+   },
+   hasMediaAttachment: false, // or true
+   viewOnce: true
+})
+
+// Document
+await sock.sendMessage(jid, {
+   document: {
+      url: 'https://example.jpg'
+   },
+   mimetype: 'image/jpeg',
+   jpegThumbnail: await sock.resize('https://example.jpg', 320, 320),
+   caption: 'Body',
+   title: 'Title',
+   subtitle: 'Subtitle',
+   footer: 'Footer',
+   shop: {
+      surface: 1, // 2 | 3 | 4
+      id: 'https://api.ssateam.my.id'
+   },
+   hasMediaAttachment: false, // or true, 
+   viewOnce: true
+})
+
+// Location
+await sock.sendMessage(jid, {
+   location: {
+      degressLatitude: -0,
+      degressLongitude: 0,
+      name: 'Hi'
+   },
+   caption: 'Body',
+   title: 'Title',
+   subtitle: 'Subtitle',
+   footer: 'Footer',
+   shop: {
+      surface: 1, // 2 | 3 | 4
+      id: 'https://api.ssateam.my.id'
+   },
+   hasMediaAttachment: false, // or true
+   viewOnce: true
+})
+
+// Product
+await sock.sendMessage(jid, {
+   product: {
+      productImage: {
+         url: 'https://example.jpg'
+      },
+      productId: '836xxx',
+      title: 'Title',
+      description: 'Description',
+      currencyCode: 'IDR',
+      priceAmount1000: '283xxx',
+      retailerId: 'kasumi',
+      url: 'https://api.ssateam.my.id',
+      productImageCount: 1
+   },
+   businessOwnerJid: '628xxx@s.whatsapp.net',
+   caption: 'Body',
+   title: 'Title',
+   subtitle: 'Subtitle',
+   footer: 'Footer',
+   shop: {
+      surface: 1, // 2 | 3 | 4
+      id: 'https://api.ssateam.my.id'
+   },
+   hasMediaAttachment: false, // or true
+   viewOnce: true
+})
+
+
