@@ -4,9 +4,9 @@ nikka(
 	{
 		pattern: 'poll',
 		desc: 'Send a poll result',
-        category: "misc",
-        react: true,
-        public: true,
+		category: 'misc',
+		react: true,
+		public: true,
 	},
 	async (m, { match }) => {
 		await m.sendPollResult({
