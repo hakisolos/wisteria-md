@@ -5,4 +5,6 @@ module.exports = {
 	OWNER: '2349112171078',
 	PREFIX: '?',
 	MONGO_URI: '',
+	ANTIDELETE_IN_CHAT: false,
+	ANTI_DELETE: true,
 };

@@ -1,9 +1,10 @@
 /** @format */
 const makeWASocket = require('baileys-pro').default;
 const NodeCache = require('node-cache');
-
+const conn = require('./lib/mongodb');
 const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false });
-
+const { initializeStore } = require('./lib/database/sql_init');
+const { setupAd } = require('./lib/antidelete');
 const {
 	useMultiFileAuthState,
 	DisconnectReason,
@@ -19,6 +20,9 @@ const handleMessage = require('./lib/handlemessage');
 global.sock = null;
 
 async function startWisteria() {
+	console.log('initializing Database');
+	await initializeStore();
+	await conn();
 	await loadCommands();
 
 	const { state, saveCreds } = await useMultiFileAuthState('auth_info_nikka');
@@ -31,7 +35,7 @@ async function startWisteria() {
 		markOnlineOnConnect: true,
 		logger: pino({ level: 'silent' }),
 	});
-
+	global.store.bind(sock.ev);
 	sock.ev.on('creds.update', saveCreds);
 
 	sock.ev.on('messages.upsert', async m => {
@@ -80,6 +84,21 @@ async function startWisteria() {
 			await sock.sendMessage(jid, {
 				text: '💌 Connected',
 			});
+		}
+	});
+	sock.ev.on('messages.update', async updates => {
+		try {
+			const antideleteModule = await setupAd(sock, global.store);
+			for (const update of updates) {
+				if (
+					update.update.message === null ||
+					update.update.messageStubType === 2
+				) {
+					await antideleteModule.execute(sock, update, { store: global.store });
+				}
+			}
+		} catch (error) {
+			console.error('Error in message update handling:', error);
 		}
 	});
 
