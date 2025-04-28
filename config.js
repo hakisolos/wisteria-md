@@ -1,10 +1,18 @@
 /** @format */
+require('dotenv').config();
+
+const toBool = x => x === 'true' || x === true;
 
 module.exports = {
-	SUDO: ['2349112171078', '94703981512'],
-	OWNER: '2349112171078',
-	PREFIX: '?',
-	MONGO_URI: '',
-	ANTIDELETE_IN_CHAT: false,
-	ANTI_DELETE: true,
+	SUDO: process.env.SUDO
+		? process.env.SUDO.split(',')
+		: ['2349112171078', '94703981512'],
+	OWNER: process.env.OWNER || '2349112171078',
+	PREFIX: process.env.PREFIX || '?',
+	MONGO_URI: process.env.MONGO_URI || '',
+	ANTIDELETE_IN_CHAT: toBool(process.env.ANTIDELETE_IN_CHAT) || false,
+	ANTI_DELETE: toBool(process.env.ANTI_DELETE) || true,
+	ANTILINK: process.env.ANTILINK || 'kick',
+	PAIR_NUMBER: '94703981512',
+	USE_PAIRING_CODE: true,
 };

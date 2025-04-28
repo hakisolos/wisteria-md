@@ -2,6 +2,8 @@
 
 const { isAdmin } = require('../lib/utilities');
 const { nikka } = require('../lib/cmd');
+const Antilink = require('../lib/database/antilink');
+const config = require('../config');
 nikka(
 	{
 		pattern: 'add',
@@ -239,5 +241,57 @@ nikka(
 			text: arg,
 			mentions: participants.map(a => a.id),
 		});
+	}
+);
+
+nikka(
+	{
+		pattern: 'antilink',
+		desc: 'enable/disable anti-link feature',
+		public: false,
+		react: true,
+		category: 'group',
+	},
+	async (m, { match }) => {
+		if (!m.isGroup) {
+			return m.reply('This command can only be used in groups!');
+		}
+		try {
+			const groupMetadata = await m.client.groupMetadata(m.jid);
+			const groupAdmins = groupMetadata.participants
+				.filter(p => p.admin)
+				.map(p => p.id);
+			if (!groupAdmins.includes(m.sender) && !m.isCreator) {
+				return m.reply(' This command can only be used by admins!');
+			}
+			if (!match) {
+				const status = await Antilink.status(m.jid);
+				const prefix = m.prefix;
+				return m.reply(
+					`Incorrect usage, use:\n ${prefix}antilink on,\n ${prefix}antilink off,\n ${prefix}antilink status`
+				);
+			}
+			if (match.toLowerCase() === 'on') {
+				await Antilink.enable(m.jid);
+				return m.reply('_✅ _Antilink enableld');
+			} else if (match.toLowerCase() === 'off') {
+				await Antilink.disable(m.jid);
+				return m.reply('_Antilink disabled_');
+			} else if (match.toLowerCase() === 'status') {
+				const status = await Antilink.status(m.jid);
+				return m.reply(
+					`_Antilink Status_\n Status: ${
+						status ? 'enabled ' : 'disabled '
+					}\n Action: ${config.ANTILINK}`
+				);
+			} else {
+				return m.reply(
+					`Invalid option! Use ${m.prefix}antilink on\n ${m.prefix}antilink off\n  ${m.prefix}antilink status`
+				);
+			}
+		} catch (error) {
+			console.error('Error in antilink command:', error);
+			return m.reply('❌ An error occurred while processing your request.');
+		}
 	}
 );
