@@ -264,3 +264,122 @@ Category: ${cmd.category}\`\`\``);
 		});
 	}
 );
+
+nikka(
+	{
+		pattern: 'dev',
+		desc: 'Displays information about the developer',
+		react: true,
+		category: 'user',
+		public: false,
+	},
+	async m => {
+		const devInfo = `
+━━ About the Developer ━┓
+> *Name*: 𝞖𝞓𝞙𝞘 𝙎𝞢𝞒
+
+> *Profession*: Software Developer
+
+> *Nationality*: UAE/NIGERIA
+
+> *Contact*: +2349112171078
+
+> *Website*:  https://haki.us.kg
+
+> *Expertise*: Bot Development, Web Design, AI Systems        
+━━━━━━━━━━━       
+    `.trim();
+
+		const imageUrl = 'https://files.catbox.moe/flinnf.jpg';
+		const thumbnailUrl = 'https://files.catbox.moe/cuu1aa.jpg';
+
+		await m.client.sendMessage(m.jid, {
+			image: { url: imageUrl },
+			caption: devInfo,
+			contextInfo: {
+				externalAdReply: {
+					title: '𝞖𝞓𝞙𝞘 𝙎𝞢𝞒 - Developer Info',
+					body: 'About haki',
+					sourceUrl: 'www.hakidev.my.id',
+					mediaUrl: 'www.hakidev.my.id',
+					mediaType: 4,
+					showAdAttribution: true,
+					renderLargerThumbnail: false,
+					thumbnailUrl: thumbnailUrl,
+				},
+			},
+		});
+	}
+);
+
+nikka(
+	{
+		pattern: 'uptime',
+		desc: 'Bot Runtime',
+		react: true,
+		category: 'user',
+		public: false,
+	},
+	async m => {
+		try {
+			const uptimeInSeconds = process.uptime();
+
+			const days = Math.floor(uptimeInSeconds / (24 * 3600));
+			const hours = Math.floor((uptimeInSeconds % (24 * 3600)) / 3600);
+			const minutes = Math.floor((uptimeInSeconds % 3600) / 60);
+			const seconds = Math.floor(uptimeInSeconds % 60);
+
+			const uptimeMessage = `${days} Days, ${hours} Hours, ${minutes} Minutes, ${seconds} Seconds`;
+
+			const aud = 'https://files.catbox.moe/hbrrav.mp3';
+			const thumbnailUrl = 'https://files.catbox.moe/z0k3fv.jpg';
+
+			await m.client.sendMessage(m.jid, {
+				audio: { url: aud },
+				mimetype: 'audio/mpeg',
+				ptt: true,
+				contextInfo: {
+					externalAdReply: {
+						title: uptimeMessage,
+						body: 'hey pookie 🌸 ',
+						sourceUrl: 'https://whatsapp.com/channel/0029VaoLotu42DchJmXKBN3L',
+						mediaUrl: aud,
+						mediaType: 1,
+						showAdAttribution: true,
+						renderLargerThumbnail: true,
+						thumbnailUrl: thumbnailUrl,
+					},
+				},
+			});
+		} catch (error) {
+			console.error('Error sending audio with uptime:', error);
+			await m.reply('❌ Failed to send the audio with uptime.');
+		}
+	}
+);
+nikka(
+  {
+    pattern: 'delsudo',
+    desc: 'Remove a number from SUDO users',
+    react: true,
+    category: 'config',
+    public: false,
+  },
+  async (m) => {
+    const number = m.quoted?.participant?.split('@')[0];
+
+    if (!number || number.length < 10) {
+      return await m.reply('Please reply to a user\'s message to remove them from the SUDO list!');
+    }
+
+    if (!config.SUDO.includes(number)) {
+      return await m.reply(`*${number}* is not in the SUDO list!`);
+    }
+
+    config.SUDO = config.SUDO.filter((n) => n !== number);
+    await updateConfigFile(config.SUDO);
+
+    return await m.reply(`*${number}* has been removed from the SUDO list successfully!`);
+  }
+);
+

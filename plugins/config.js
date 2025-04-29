@@ -1,7 +1,8 @@
 /** @format */
 
 const { nikka } = require('../lib');
-const { editEnv } = require('../lib');
+const { editEnv, updateConfigFile } = require('../lib');
+const config = require('../config');
 
 nikka(
 	{
@@ -96,5 +97,60 @@ nikka(
 			console.error('Error in antilink-mode command:', error);
 			return m.reply('❌ An error occurred while processing your request.');
 		}
+	}
+);
+
+nikka(
+	{
+		pattern: 'setsudo',
+		desc: 'Add a number to SUDO users',
+		react: true,
+		category: 'config',
+		public: false,
+	},
+	async m => {
+		const number = m.quoted.sender.split('@')[0];
+
+		if (!number || number.length < 10) {
+			return await m.reply(
+				"Please reply to a user's message to add them to the SUDO list!"
+			);
+		}
+
+		if (config.SUDO.includes(number)) {
+			return await m.reply(`*${number}* is already in the SUDO list!`);
+		}
+
+		config.SUDO.push(number);
+		await updateConfigFile(config.SUDO);
+
+		return await m.reply(`_${number}* has been added to the SUDO _`);
+	}
+);
+nikka(
+	{
+		pattern: 'delsudo',
+		desc: 'Remove a number from SUDO users',
+		react: true,
+		category: 'config',
+		public: false,
+	},
+	async m => {
+		const number = m.quoted.participant.split('@')[0];
+
+		if (!number || number.length < 10) {
+			return await m.reply(
+				"Please reply to a user's message to remove them from the SUDO list!"
+			);
+		}
+
+		if (!config.SUDO.includes(number)) {
+			return await m.reply(`*${number}* is not in the SUDO list!`);
+		}
+
+		config.SUDO = config.SUDO.filter(n => n !== number);
+		await updateConfigFile(config.SUDO);
+
+		return await m.reply(`_${number}* has been removed from the SUDO_`);
 	}
 );

@@ -138,7 +138,7 @@ nikka(
 				config.OWNER !== senderNumber &&
 				(!config.SUDO || !config.SUDO.includes(senderNumber))
 			) {
-				return await m.reply('❌ Only owner can install plugins');
+				return;
 			}
 
 			const code = m.body.slice(1).trim(); // remove ">" from text
