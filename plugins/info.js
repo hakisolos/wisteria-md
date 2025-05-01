@@ -1,6 +1,7 @@
 /** @format */
 const { nikka } = require('../lib/cmd');
 const { tiny } = require('../lib/utilities/font/fancy');
+const config = require('../config');
 nikka(
 	{
 		pattern: 'ping',
@@ -358,28 +359,66 @@ nikka(
 	}
 );
 nikka(
-  {
-    pattern: 'delsudo',
-    desc: 'Remove a number from SUDO users',
-    react: true,
-    category: 'config',
-    public: false,
-  },
-  async (m) => {
-    const number = m.quoted?.participant?.split('@')[0];
+	{
+		pattern: 'delsudo',
+		desc: 'Remove a number from SUDO users',
+		react: true,
+		category: 'config',
+		public: false,
+	},
+	async m => {
+		const number = m.quoted?.participant?.split('@')[0];
 
-    if (!number || number.length < 10) {
-      return await m.reply('Please reply to a user\'s message to remove them from the SUDO list!');
-    }
+		if (!number || number.length < 10) {
+			return await m.reply(
+				"Please reply to a user's message to remove them from the SUDO list!"
+			);
+		}
 
-    if (!config.SUDO.includes(number)) {
-      return await m.reply(`*${number}* is not in the SUDO list!`);
-    }
+		if (!config.SUDO.includes(number)) {
+			return await m.reply(`*${number}* is not in the SUDO list!`);
+		}
 
-    config.SUDO = config.SUDO.filter((n) => n !== number);
-    await updateConfigFile(config.SUDO);
+		config.SUDO = config.SUDO.filter(n => n !== number);
+		await updateConfigFile(config.SUDO);
 
-    return await m.reply(`*${number}* has been removed from the SUDO list successfully!`);
-  }
+		return await m.reply(
+			`*${number}* has been removed from the SUDO list successfully!`
+		);
+	}
 );
 
+nikka(
+	{
+		pattern: 'checkme',
+		desc: 'view profile card',
+		public: true,
+		react: true,
+		category: 'info',
+	},
+	async m => {
+		const data = {
+			name: m.pushName,
+			id: m.sender.split('@')[0],
+			avater: 'https://files.catbox.moe/iki28f.jpg',
+			role: config.SUDO.includes(m.sender.split('@')[0]) ? 'Admin' : 'User',
+		};
+		const apiUrl = `https://wisteria-utils.onrender.com/profile?name=${data.name}&id=${data.id}&role=user&avatar=https://files.catbox.moe/iki28f.jpg`;
+		await m.client.sendMessage(m.jid, {
+			image: { url: apiUrl },
+			caption: null,
+			contextInfo: {
+				externalAdReply: {
+					title: 'WISTERIA | MD',
+					body: 'Your prfile',
+					sourceUrl: 'www.hakidev.my.id',
+					mediaUrl: 'www.hakidev.my.id',
+					mediaType: 4,
+					showAdAttribution: true,
+					renderLargerThumbnail: false,
+					thumbnailUrl: 'https://files.catbox.moe/iki28f.jpg',
+				},
+			},
+		});
+	}
+);
