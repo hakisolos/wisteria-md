@@ -3,7 +3,8 @@
 const { nikka } = require('../lib');
 const { editEnv, updateConfigFile } = require('../lib');
 const config = require('../config');
-
+const on = 'on';
+const off = 'off';
 nikka(
 	{
 		pattern: 'setprefix',
@@ -22,9 +23,6 @@ nikka(
 		process.exit(1);
 	}
 );
-
-const on = 'on';
-const off = 'off';
 
 nikka(
 	{
@@ -50,6 +48,35 @@ nikka(
 				return m.reply('__Antidelete is already deactivated.');
 			await editEnv(`ANTI_DELETE=false`);
 			await m.reply('_Antidelete Deactivated, restarting..._');
+			process.exit(1);
+		}
+	}
+);
+
+nikka(
+	{
+		pattern: 'greeting',
+		desc: 'greetings',
+		public: false,
+		react: true,
+		category: 'config',
+	},
+	async (m, { match }) => {
+		if (!match)
+			return await m.send(
+				`hey ${m.pushName}, use ${m.prefix} greetings on or off`
+			);
+		if (match.trim() === on) {
+			if (process.env.GREETINGS === 'true')
+				return m.reply('Grettings is already activated.');
+			await editEnv(`GREETINGS=true`);
+			await m.reply('Grettings Activated, restarting..._');
+			process.exit(1);
+		} else if (match.trim() === off) {
+			if (process.env.GREETINGS === 'false')
+				return m.reply('Grettings is already deactivated.');
+			await editEnv(`GREETINGS=false`);
+			await m.reply('Grettings Deactivated, restarting..._');
 			process.exit(1);
 		}
 	}

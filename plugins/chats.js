@@ -2,6 +2,7 @@
 
 const { nikka } = require('../lib/cmd');
 const { isAdmin } = require('../lib/utilities/index');
+const { Warn } = require('../lib/database');
 nikka(
 	{
 		pattern: 'pin',
@@ -137,5 +138,50 @@ nikka(
 			m.jid
 		);
 		await m.reply('_message starred_');
+	}
+);
+
+nikka(
+	{
+		pattern: 'warn',
+		desc: 'warn users',
+		public: false,
+		react: true,
+		usage: 'reply the person with .warn',
+	},
+	async m => {
+		const user = m.quoted.sender;
+		if (!user)
+			return m.reply(
+				`_please ${m.pushName}, reply to the user you want to warn_`
+			);
+
+		const jid = m.jid;
+		const userId = user.split('@')[0];
+		const reason = m.text || 'No reason provided';
+		const adminId = m.sender.split('@')[0];
+
+		await Warn.addWarn(jid, userId, reason, adminId);
+		const warnCount = await Warn.getWarnCount(jid, userId);
+
+		await m.client.sendMessage(m.jid, {
+			text: `Warn Added for @${userId}\n Total warns: ${warnCount}/3`,
+			mentions: [user],
+		});
+
+		if (warnCount >= 3) {
+			if (m.isGroup) {
+				await m.client.sendMessage(m.jid, {
+					text: `_Warn limit for @${userId} Exceeded, commencing action_`,
+					mentions: [user],
+				});
+				await sock.groupParticipantsUpdate(jid, [user], 'remove');
+			} else {
+				await m.reply(`_Warn limit Exceeded, commencing action_`);
+				await m.block(user);
+			}
+
+			await Warn.resetWarns(jid, userId);
+		}
 	}
 );

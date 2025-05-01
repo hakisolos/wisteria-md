@@ -16,4 +16,5 @@ module.exports = {
 	PAIR_NUMBER: '94703981512',
 	USE_PAIRING_CODE: true,
 	BOT_IMG: process.env.BOT_IMG || 'https://files.catbox.moe/z0k3fv.jpg',
+	GREETINGS: process.env.GREETINGS || true,
 };

@@ -26,64 +26,6 @@ nikka(
 
 nikka(
 	{
-		pattern: 'help',
-		desc: 'Show help menu',
-		usage: '!help [command]',
-		category: 'info',
-	},
-	async (m, { args }) => {
-		const { commands } = require('../lib/cmd');
-
-		if (args.length > 0) {
-			// Help for specific command
-			const cmdName = args[0].toLowerCase();
-			let found = false;
-
-			for (const [pattern, cmd] of commands.entries()) {
-				const patternStr =
-					pattern instanceof RegExp ? pattern.toString() : pattern;
-				if (patternStr.includes(cmdName)) {
-					found = true;
-					await m.reply(
-						`*Command:* ${patternStr}\n*Description:* ${cmd.desc}\n*Usage:* ${cmd.usage}\n*Category:* ${cmd.category}`
-					);
-					break;
-				}
-			}
-
-			if (!found) {
-				await m.reply(
-					`Command ${cmdName} not found. Use !help for all commands.`
-				);
-			}
-		} else {
-			// General help menu
-			let helpText = '*🤖 Nikka Bot Commands 🤖*\n\n';
-			const categories = {};
-
-			// Group commands by category
-			for (const [pattern, cmd] of commands.entries()) {
-				const category = cmd.category || 'misc';
-				if (!categories[category]) categories[category] = [];
-
-				const patternStr =
-					pattern instanceof RegExp ? pattern.toString() : pattern;
-				categories[category].push(`!${patternStr} - ${cmd.desc}`);
-			}
-
-			// Build help text
-			for (const [category, cmds] of Object.entries(categories)) {
-				helpText += `*${category.toUpperCase()}*\n${cmds.join('\n')}\n\n`;
-			}
-
-			helpText += 'Use !help [command] for specific command help';
-			await m.reply(helpText);
-		}
-	}
-);
-
-nikka(
-	{
 		pattern: 'alive',
 		react: true,
 		desc: 'show alive msf',
@@ -420,5 +362,42 @@ nikka(
 				},
 			},
 		});
+	}
+);
+
+nikka(
+	{
+		pattern: 'help',
+		desc: 'Sends Hey and Hi buttons',
+		category: 'general',
+		react: true,
+	},
+	async m => {
+		await sock.sendMessage(
+			m.jid,
+			{
+				text: 'Choose one:',
+				footer: 'With love ❤️ from Nikka',
+				buttons: [
+					{
+						buttonId: '?ping',
+						buttonText: {
+							displayText: 'ping',
+						},
+						type: 1,
+					},
+					{
+						buttonId: '?alive',
+						buttonText: {
+							displayText: 'alive',
+						},
+						type: 1,
+					},
+				],
+				headerType: 1,
+				viewOnce: true,
+			},
+			{ quoted: null }
+		);
 	}
 );
