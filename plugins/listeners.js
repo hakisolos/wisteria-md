@@ -58,61 +58,6 @@ nikka(
 	}
 );
 
-nikka(
-	{
-		on: 'reply',
-	},
-	async (m, { eventType }) => {
-		const isEnabled = await isChatbotEnabled(m.jid);
-		if (!isEnabled || !m.body) return;
-
-		const ignoreMessages = [
-			'?chatbot on',
-			'?chatbot off',
-			'✅ chatbot enabled',
-			'❌ chatbot disabled',
-		];
-
-		// Check if message starts with "nikka" (case insensitive)
-		if (m.body.toLowerCase().startsWith('nikka')) {
-			await m.client.sendPresenceUpdate('typing', m.jid);
-			return await m.reply(`Konnichiwa! 🌸 ${m.pushName || 'there'}`);
-		}
-
-		// Check for ignored messages
-		if (ignoreMessages.some(txt => m.body.toLowerCase().includes(txt))) return;
-
-		try {
-			await m.client.sendPresenceUpdate('typing', m.jid);
-
-			// Use only POST request to the new API
-			const response = await axios.post(
-				'http://localhost:4000/chat', // Your new API endpoint
-				{
-					jid: m.sender,
-					message: m.body,
-				},
-				{
-					timeout: 15000,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				}
-			);
-
-			if (response.data && response.data.reply) {
-				return await m.reply(response.data.reply);
-			} else {
-				throw new Error('Invalid response structure');
-			}
-		} catch (error) {
-			console.error('Error calling Nikka API:', error);
-			return await m.reply(
-				'⚠️ AI service is currently unavailable. Please try again later.'
-			);
-		}
-	}
-);
 
 nikka(
 	{
@@ -209,3 +154,5 @@ nikka(
 		}
 	}
 );
+
+let activeTrivia = {}; // Stores ongoing trivia per group
