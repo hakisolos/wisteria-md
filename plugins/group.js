@@ -49,7 +49,7 @@ nikka(
 		const jid = m.jid;
 		if (!m.isGroup)
 			return await m.reply('_This command is specifically for groups_');
-		let num = match || m.quoted.participant;
+		let num = m.quoted.sender;
 		if (!num)
 			return await m.reply(
 				`hi ${m.pushName}, please mention or tag a user to remove`

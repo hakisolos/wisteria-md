@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const { startWisteria } = require('./lib/client');
 const NodeCache = require('node-cache');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 global.cache = {
 	groups: new NodeCache({ stdTTL: 300, checkperiod: 320, useClones: false }),
 	users: new NodeCache({ stdTTL: 600, checkperiod: 620, useClones: false }),

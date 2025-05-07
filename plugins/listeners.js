@@ -2,6 +2,7 @@
 const { nikka, installPluginFromCode } = require('../lib/cmd');
 const Antilink = require('../lib/database/antilink');
 const config = require('../config');
+const axios = require('axios');
 const {
 	enableChatbot,
 	disableChatbot,
@@ -72,51 +73,43 @@ nikka(
 			'❌ chatbot disabled',
 		];
 
+		// Check if message starts with "nikka" (case insensitive)
+		if (m.body.toLowerCase().startsWith('nikka')) {
+			await m.client.sendPresenceUpdate('typing', m.jid);
+			return await m.reply(`Konnichiwa! 🌸 ${m.pushName || 'there'}`);
+		}
+
+		// Check for ignored messages
 		if (ignoreMessages.some(txt => m.body.toLowerCase().includes(txt))) return;
 
 		try {
-			const userId = `${m.jid}_${m.sender || 'unknown'}`;
+			await m.client.sendPresenceUpdate('typing', m.jid);
 
+			// Use only POST request to the new API
 			const response = await axios.post(
-				'https://nikka-api.vercel.app/ai/nikka',
+				'http://localhost:4000/chat', // Your new API endpoint
 				{
-					userId: userId,
+					jid: m.sender,
 					message: m.body,
 				},
 				{
 					timeout: 15000,
+					headers: {
+						'Content-Type': 'application/json',
+					},
 				}
 			);
 
-			if (response.data && response.data.data) {
-				if (response.data.memorySize) {
-					// Logging removed
-				}
-				await m.client.sendPresenceUpdate('typing', m.jid);
-				return await m.reply(response.data.data);
+			if (response.data && response.data.reply) {
+				return await m.reply(response.data.reply);
 			} else {
 				throw new Error('Invalid response structure');
 			}
-		} catch (postError) {
-			try {
-				const apiUrl = `https://nikka-api.vercel.app/ai/nikka?q=${encodeURIComponent(
-					m.body
-				)}`;
-
-				const getResponse = await axios.get(apiUrl, {
-					timeout: 10000,
-				});
-
-				if (getResponse.data && getResponse.data.data) {
-					return await m.reply(getResponse.data.data);
-				} else {
-					throw new Error('Invalid response from GET request');
-				}
-			} catch (getError) {
-				return await m.reply(
-					'⚠️ AI service is currently unavailable. Please try again later.'
-				);
-			}
+		} catch (error) {
+			console.error('Error calling Nikka API:', error);
+			return await m.reply(
+				'⚠️ AI service is currently unavailable. Please try again later.'
+			);
 		}
 	}
 );
@@ -154,6 +147,65 @@ nikka(
 		} catch (error) {
 			console.error(error);
 			await m.reply(`❌ Error: ${error.message}`);
+		}
+	}
+);
+
+nikka(
+	{
+		on: 'text',
+	},
+	async (m, { eventType }) => {
+		try {
+			// Skip if no message body or if message is from the bot itself
+			if (!m.body || m.fromMe) return;
+
+			// Get the bot's own JID
+			const botJid = m.client.user.id;
+
+			// Check for mentions the Baileys way - using the message body
+			// Look for @mentions that might reference the bot (by checking the number pattern)
+			const botNumber = botJid.split('@')[0];
+			const mentionRegex = new RegExp(`@${botNumber}`, 'i');
+
+			// Check if the message contains an @mention of the bot
+			if (mentionRegex.test(m.body)) {
+				await m.client.sendPresenceUpdate('typing', m.jid);
+
+				// Slight delay to make typing indicator visible (optional)
+				await new Promise(resolve => setTimeout(resolve, 1000));
+
+				// Reply with the greeting
+				return await m.reply('Konnichiwa! 🌸');
+			}
+		} catch (error) {
+			console.error('Error in mention listener:', error);
+		}
+	}
+);
+
+nikka(
+	{
+		on: 'text',
+	},
+	async (m, { eventType }) => {
+		try {
+			// Skip if no message body or if message is from the bot itself
+			if (!m.body) return;
+
+			// Check if message starts with "nikka" (case insensitive)
+			if (m.body.toLowerCase().startsWith('nikka')) {
+				// Show typing indicator for a more natural response
+				await m.client.sendPresenceUpdate('typing', m.jid);
+
+				// Short delay to make typing indicator visible (optional)
+				await new Promise(resolve => setTimeout(resolve, 1000));
+
+				// Reply with the greeting, using pushName if available
+				return await m.reply(`Konnichiwa! 🌸 ${m.pushName || 'there'}`);
+			}
+		} catch (error) {
+			console.error('Error in nikka greeting listener:', error);
 		}
 	}
 );
