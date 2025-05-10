@@ -369,7 +369,7 @@ nikka(
 	{
 		pattern: 'help',
 		desc: 'Sends Hey and Hi buttons',
-		category: 'general',
+		category: 'user',
 		react: true,
 	},
 	async m => {
