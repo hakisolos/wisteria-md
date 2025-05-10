@@ -1,0 +1,24 @@
+{
+  "120363416653739096@g.us": {
+    "94703981512@s.whatsapp.net:2349123721026@s.whatsapp.net": {
+      "players": [
+        "94703981512@s.whatsapp.net",
+        "2349123721026@s.whatsapp.net"
+      ],
+      "scores": {
+        "94703981512@s.whatsapp.net": 8,
+        "2349123721026@s.whatsapp.net": 10
+      },
+      "currentPlayer": "94703981512@s.whatsapp.net",
+      "currentChallenge": {
+        "startingLetter": "D",
+        "wordLength": 7,
+        "description": "Form a 7-letter word starting with 'D'"
+      },
+      "level": 5,
+      "roundTimeLimit": 270000,
+      "startTime": 1746823350004,
+      "lastMoveTime": 1746823531337
+    }
+  }
+}

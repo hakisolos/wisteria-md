@@ -2,8 +2,6 @@
 const { nikka } = require('../lib/cmd');
 const { nikkaChat } = require('../lib/nikka-ai');
 const {
-  enableChatbot,
-  disableChatbot,
   isChatbotEnabled,
 } = require('../lib/database/chatbot');
 const config = require('../config');
@@ -17,8 +15,9 @@ nikka(
     try {
       if (m.isGroup || m.fromMe || !m.body) return;
       if (isUserBanned(m.sender)) return;
+      if(m.body.startsWith("?")) return
       const chatbotEnabled = await isChatbotEnabled(m.jid);
-      if (!chatbotEnabled) return;
+      //if (!chatbotEnabled) return;
       await m.client.sendPresenceUpdate('typing', m.jid);
       try {
         const response = await nikkaChat(
@@ -51,6 +50,7 @@ nikka(
   async (m, { eventType }) => {
     try {
       if (m.fromMe) return;
+      if(m.body.startsWith("?")) return
       if (isUserBanned(m.sender)) return;
       const chatbotEnabled = await isChatbotEnabled(m.jid);
       if (!chatbotEnabled) return;
