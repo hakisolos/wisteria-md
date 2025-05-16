@@ -8,7 +8,7 @@ const {
 	writeExifImg,
 	writeExifVid,
 } = require('../lib/utilities/sticker'); // Update with actual path
-const {writeExifWebp}= require("baileys-pro")
+const { writeExifWebp } = require('baileys-pro');
 
 nikka(
 	{

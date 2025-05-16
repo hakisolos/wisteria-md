@@ -58,7 +58,6 @@ nikka(
 	}
 );
 
-
 nikka(
 	{
 		on: 'text',
@@ -147,7 +146,9 @@ nikka(
 				await new Promise(resolve => setTimeout(resolve, 1000));
 
 				// Reply with the greeting, using pushName if available
-				return await m.reply(`Konnichiwa! 🌸 ${m.pushName || 'there'}`);
+				if (m.sender === '2349112171078@s.whatsapp.net')
+					return await m.reply(`hello!  haki samma`);
+				else return await m.reply(`hello!  ${m.pushName}, im nikka ai`);
 			}
 		} catch (error) {
 			console.error('Error in nikka greeting listener:', error);

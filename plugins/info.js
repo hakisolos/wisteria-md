@@ -329,7 +329,7 @@ nikka(
 		);
 	}
 );
-
+/*
 nikka(
 	{
 		pattern: 'checkme',
@@ -364,7 +364,7 @@ nikka(
 		});
 	}
 );
-
+*/
 nikka(
 	{
 		pattern: 'help',
@@ -399,5 +399,18 @@ nikka(
 			},
 			{ quoted: null }
 		);
+	}
+);
+
+nikka(
+	{
+		pattern: 'thankYouLord',
+		desc: 'thank God',
+		public: true,
+		react: true,
+		category: 'THANK GOD',
+	},
+	async m => {
+		return await m.reply('thank you Jesus');
 	}
 );
