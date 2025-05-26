@@ -12,11 +12,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@cacheable/node-cache": "^1.5.5",
     "@hapi/boom": "^10.0.1",
     "@im-dims/baileys-md": "^7.1.8",
     "axios": "^1.9.0",
-    "baileys-pro": "^0.0.3",
     "baileys": "github:whiskeysockets/baileys",
+    "baileys-pro": "^0.0.3",
     "better-sqlite3": "^11.9.1",
     "body-parser": "^2.2.0",
     "chalk": "^4.1.2",
