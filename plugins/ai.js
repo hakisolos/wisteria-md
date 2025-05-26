@@ -194,3 +194,4 @@ nikka(
 		return await m.client.sendMessage(m.jid, messageContent);
 	}
 );
+

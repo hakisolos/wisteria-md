@@ -5,6 +5,7 @@ const {
 	addUser,
 	buyItem,
 	removeItem,
+	userCount,
 	hasItem,
 	isRegistered,
 	checkCooldown,
@@ -15,7 +16,7 @@ const {
 	updateBalance,
 	isItem,
 } = require('../lib');
-
+const config = require('../config');
 nikka(
 	{
 		pattern: 'register',
@@ -437,7 +438,9 @@ nikka(
 		public: false,
 	},
 	async m => {
-		const list = await getAllUsers();
+		let list = await getAllUsers();
+		const user = await userCount()
+		list += `\n\n TOTAL USERS: ${user} `
 		return m.reply(list);
 	}
 );
@@ -601,7 +604,7 @@ nikka(
 		);
 	}
 );
-
+/*
 nikka(
 	{
 		pattern: 'flip',
@@ -618,26 +621,27 @@ nikka(
 		}
 
 		const input = match?.trim().toLowerCase().split(' ');
-		const bet = Number(input[1]);
 		const choice = input[0];
+		const bet = Number(input[1]);
 
+		// ✅ Validate choice first
 		if (!choice || !['heads', 'tails'].includes(choice)) {
 			return m.reply('Usage: .flip heads 500');
 		}
 
+		// ✅ Validate bet
 		if (!bet || isNaN(bet) || bet < 100) {
 			return m.reply('Minimum bet is 100 Ƀ');
 		}
 
+		// ✅ Now safely check balance
 		const balance = await getBalance(jid);
 		if (balance < bet) {
-			return m.reply(
-				`Insufficient funds.\nCurrent Balance: Ƀ${balance.toLocaleString()}`
-			);
+			return m.reply(`Insufficient funds.\nCurrent Balance: Ƀ${balance.toLocaleString()}`);
 		}
 
-		const result =
-			Math.random() < 0.48 ? 'heads' : Math.random() < 0.96 ? 'tails' : 'edge';
+		// 🪙 Flip logic
+		const result = Math.random() < 0.48 ? 'heads' : Math.random() < 0.96 ? 'tails' : 'edge';
 
 		let reply = `🪙 Coin flipped: *${result.toUpperCase()}*\n\n`;
 		let change = 0;
@@ -658,7 +662,7 @@ nikka(
 				text: reply,
 				contextInfo: {
 					externalAdReply: {
-						title: 'Coin Flip ',
+						title: 'Coin Flip',
 						body: 'NIKKA SOCIETY',
 						sourceUrl: '',
 						mediaUrl: '',
@@ -674,6 +678,7 @@ nikka(
 	}
 );
 
+*/
 nikka(
 	{
 		pattern: 'guess',
@@ -1036,6 +1041,389 @@ nikka(
 						thumbnailUrl: 'https://files.catbox.moe/qfuau0.png',
 					},
 				},
+			},
+			{ quoted: m.raw }
+		);
+	}
+);
+
+
+nikka(
+	{
+		pattern: 'rob',
+		desc: 'Rob another user and steal their money',
+		public: true,
+		react: true,
+		category: 'economy',
+	},
+	async m => {
+		const jid = m.sender;
+		const cooldownTime = 60 * 60 * 1000;
+
+		if (!(await isRegistered(jid))) {
+			return m.reply('💔 You need to register first before committing crimes!');
+		}
+
+		if (!(await hasItem(jid, 'pistol'))) {
+			return m.reply('🔫 You need a pistol to rob someone! Buy one from the shop.');
+		}
+
+		const cooldown = checkCooldown(jid, cooldownTime);
+		if (cooldown.onCooldown) {
+			return m.reply(`⏳ You're laying low after your last crime. Wait ${cooldown.timeLeft} before robbing again.`);
+		}
+
+		if (!m.quoted) {
+			return m.reply('❓ Quote the message of the person you want to rob!');
+		}
+
+		const targetJid = m.quoted.sender;
+
+		if (targetJid === jid) {
+			return m.reply('🤦‍♂️ You can\'t rob yourself, silly!');
+		}
+
+		if (!(await isRegistered(targetJid))) {
+			return m.reply('💔 That person isn\'t registered in our economy system!');
+		}
+
+		const targetBal = await getBalance(targetJid);
+		const targetBalance = parseInt(targetBal.replace(/[^\d]/g, ''));
+
+		if (targetBalance < 200) {
+			return m.reply('💸 They\'re too broke to rob! Find someone wealthier.');
+		}
+
+		const hasVest = await hasItem(targetJid, 'vest');
+		const outcome = Math.random();
+		let result = '';
+		let stolenAmount = 0;
+
+		if (hasVest && outcome < 0.4) {
+			result = `🛡️ Oh no! Your target was wearing a protective vest. Your robbery failed!`;
+		} else if (outcome < 0.35) {
+			const fine = Math.floor(Math.random() * 900) + 600;
+			await updateBalance(jid, -fine);
+			result = `🚔 BUSTED! The police caught you in the act! You were fined Ƀ${fine.toLocaleString()}.`;
+		} else if (outcome < 0.5) {
+			const damage = Math.floor(Math.random() * 400) + 200;
+			await updateBalance(jid, -damage);
+			result = `👊 Your target caught you red-handed and fought back! You lost Ƀ${damage.toLocaleString()} in medical bills.`;
+		} else {
+			const percentage = (Math.random() * 20) + 5;
+			stolenAmount = Math.floor((targetBalance * percentage) / 100);
+			stolenAmount = Math.min(1000, Math.max(100, stolenAmount));
+			await updateBalance(targetJid, -stolenAmount);
+			await updateBalance(jid, stolenAmount);
+			result = `💰 Robbery successful! You stole Ƀ${stolenAmount.toLocaleString()} from ${m.quoted.pushName || 'your victim'}!`;
+		}
+
+		const newBalance = await getBalance(jid);
+
+		return await sock.sendMessage(
+			m.jid,
+			{
+				text: `${result}\n\n💼 Your balance: ${newBalance}`,
+				contextInfo: {
+					externalAdReply: {
+						title: 'Robbery',
+						body: 'NIKKA SOCIETY',
+						sourceUrl: '',
+						mediaUrl: '',
+						mediaType: 1,
+						showAdAttribution: true,
+						renderLargerThumbnail: false,
+						thumbnailUrl: 'https://files.catbox.moe/aqvpkp.png',
+					},
+				},
+			},
+			{ quoted: m.raw }
+		);
+	}
+);
+
+nikka(
+	{
+		pattern: 'donate',
+		desc: 'Donate money to another user',
+		public: true,
+		react: true,
+		category: 'economy',
+	},
+	async (m, { match }) => {
+		const jid = m.sender;
+
+		if (!(await isRegistered(jid))) {
+			return m.reply('💔 You need to register first before donating!');
+		}
+
+		if (!m.quoted && !match) {
+			return m.reply('❓ Quote the message of the person you want to donate to, and specify the amount!\nExample: .donate 500');
+		}
+
+		let amount = parseInt(match?.trim());
+		if (!amount || isNaN(amount) || amount <= 0) {
+			return m.reply('💰 Please specify a valid amount to donate!\nExample: .donate 500');
+		}
+
+		if (amount < 50) {
+			return m.reply('💰 Minimum donation amount is Ƀ50!');
+		}
+
+		const senderBalance = await getBalance(jid);
+		const senderBal = parseInt(senderBalance.replace(/[^\d]/g, ''));
+
+		if (senderBal < amount) {
+			return m.reply(`💸 You don't have enough funds to donate Ƀ${amount.toLocaleString()}!\nYour balance: Ƀ${senderBal.toLocaleString()}`);
+		}
+
+		const recipientJid = m.quoted ? m.quoted.sender : null;
+
+		if (!recipientJid) {
+			return m.reply('❓ You need to quote the message of the person you want to donate to!');
+		}
+
+		if (recipientJid === jid) {
+			return m.reply('🤨 You can\'t donate to yourself!');
+		}
+
+		if (!(await isRegistered(recipientJid))) {
+			return m.reply('💔 This person isn\'t registered in our economy system yet!');
+		}
+
+		await updateBalance(jid, -amount);
+		await updateBalance(recipientJid, amount);
+
+		const newSenderBalance = await getBalance(jid);
+		const recipientName = m.quoted.pushName || 'the recipient';
+
+		let donationMessage = '';
+		if (amount >= 10000) {
+			donationMessage = '🎉 Wow! That\'s incredibly generous! You\'re a true pillar of the community!';
+		} else if (amount >= 5000) {
+			donationMessage = '✨ That\'s very generous of you! Your kindness won\'t be forgotten!';
+		} else if (amount >= 1000) {
+			donationMessage = '🌟 That\'s a substantial donation! How generous!';
+		} else {
+			donationMessage = '💖 Your kindness is appreciated!';
+		}
+
+		return await sock.sendMessage(
+			m.jid,
+			{
+				text: `💸 Successfully donated Ƀ${amount.toLocaleString()} to ${recipientName}!\n\n${donationMessage}\n\n💼 Your new balance: ${newSenderBalance}`,
+				contextInfo: {
+					externalAdReply: {
+						title: 'Donation Successful',
+						body: 'NIKKA SOCIETY',
+						sourceUrl: '',
+						mediaUrl: '',
+						mediaType: 1,
+						showAdAttribution: true,
+						renderLargerThumbnail: false,
+						thumbnailUrl: 'https://files.catbox.moe/liz2iu.png',
+					},
+				},
+			},
+			{ quoted: m.raw }
+		);
+	}
+);
+
+
+
+
+nikka(
+	{
+		pattern: 'dig',
+		desc: 'Dig for treasures and rewards',
+		public: true,
+		react: true,
+		category: 'economy',
+	},
+	async m => {
+		const jid = m.sender;
+		const cooldownTime = 60 * 60 * 1000;
+
+		if (!(await isRegistered(jid))) {
+			return m.reply('💔 You need to register first before digging for treasures!');
+		}
+
+		if (!(await hasItem(jid, 'shovel'))) {
+			return m.reply('⛏️ You need a shovel to dig! Buy one from the shop first.');
+		}
+
+		const cooldown = checkCooldown(jid, cooldownTime);
+		if (cooldown.onCooldown) {
+			return m.reply(`⏳ Your shovel needs a break! Wait ${cooldown.timeLeft} before digging again.`);
+		}
+
+		const chance = Math.random();
+		let reward = 0;
+		let message = '';
+
+		if (chance < 0.10) {
+			message = `🕳️ You dug for an hour but found nothing but dirt and worms. Better luck next time!`;
+		} else if (chance < 0.15) {
+			reward = -100;
+			await updateBalance(jid, reward);
+			message = `🦂 Oh no! You disturbed a scorpion nest while digging! You lost Ƀ100 in medical bills.`;
+		} else {
+			reward = Math.floor(Math.random() * 901 + 100);
+			await updateBalance(jid, reward);
+
+			if (reward < 300) {
+				message = `💰 You found Ƀ${reward.toLocaleString()} buried in the ground!`;
+			} else if (reward < 600) {
+				message = `💎 You dug up some shiny gemstones worth Ƀ${reward.toLocaleString()}!`;
+			} else if (reward < 900) {
+				message = `🏺 You discovered an ancient pottery filled with Ƀ${reward.toLocaleString()}! What a find!`;
+			} else {
+				message = `🔱 Amazing! You unearthed a small treasure chest containing Ƀ${reward.toLocaleString()}!`;
+			}
+		}
+
+		const newBalance = await getBalance(jid);
+
+		return await sock.sendMessage(
+			m.jid,
+			{
+				text: `⛏️ *DIGGING RESULTS* ⛏️\n\n${message}\n\n💼 Your balance: ${newBalance}`,
+				contextInfo: {
+					externalAdReply: {
+						title: 'Treasure Hunt',
+						body: 'NIKKA SOCIETY',
+						sourceUrl: '',
+						mediaUrl: '',
+						mediaType: 1,
+						showAdAttribution: true,
+						renderLargerThumbnail: false,
+						thumbnailUrl: 'https://files.catbox.moe/3896e1.jpeg',
+					},
+				},
+			},
+			{ quoted: m.raw }
+		);
+	}
+);
+
+
+
+
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+	host: 'smtp.gmail.com',
+	port: 465,
+	secure: true,
+	auth: {
+	  user: 'maxwellexcel174@gmail.com',
+	  pass: 'udxl udxk txae pmcx',
+	},
+	logger: true,
+	debug: true,
+  });
+  
+  nikka(
+	{
+	  pattern: 'reportemail',
+	  desc: 'Report an issue via email',
+	  usage: '!reportemail [issue]',
+	  category: 'user',
+	  react: true,
+	  public: true,
+	},
+	async (m, { args }) => {
+	  const issue = args.join(' ').trim();
+	  if (!issue) return await m.reply('❌ Please provide an issue description.');
+  
+	  const mailOptions = {
+		from: '"NIKKA AI" <maxwellexcel174@gmail.com>',
+		to: 'hakixer@gmail.com',
+		subject: `Issue report from ${m.pushName || 'User'}`,
+		text: `Reporter: ${m.pushName || 'Unknown'} (${m.sender.split('@')[0]})\nIssue:\n${issue}`,
+	  };
+  
+	  try {
+		await transporter.sendMail(mailOptions);
+		await m.reply('✅ Report sent successfully via 	email. Thank you!');
+	  } catch (e) {
+		console.error(e);
+		await m.reply('❌ Failed to send email report.');
+	  }
+	}
+  );
+  
+
+
+nikka(
+    {
+        pattern: 'reportmod',
+        desc: 'Report an issue directly to moderators',
+        usage: '!reportmod [issue]',
+        category: 'user',
+        react: true,
+        public: true,
+    },
+    async (m, { args }) => {
+        const issue = args.join(' ').trim();
+        if (!issue) return await m.reply('❌ Please provide an issue description.');
+        if (!config.MODS || config.MODS.length === 0) return await m.reply('❌ No moderators configured.');
+
+        const reportMsg = `📢 *Issue Report*\nFrom: ${m.pushName || 'Unknown'}\nIssue: ${issue}`;
+
+        let sentCount = 0;
+        for (const mod of config.MODS) {
+            try {
+                const modJid = mod.includes('@s.whatsapp.net') ? mod : `${mod}@s.whatsapp.net`;
+                await global.sock.sendMessage(modJid, { text: reportMsg });
+                sentCount++;
+            } catch (e) {
+                console.error(`Failed to send to ${mod}`, e);
+            }
+        }
+
+        if (sentCount) {
+            await m.reply(`✅ Report sent to ${sentCount} moderator${sentCount > 1 ? 's' : ''}.`);
+        } else {
+            await m.reply('❌ Failed to send report to moderators.');
+        }
+    }
+);
+
+
+nikka(
+	{
+		pattern: 'report',
+		desc: 'report',
+		category: 'user',
+		react: true,
+	},
+	async (m, {match}) => {
+		if(!match) return m.reply(`what issue am i reporting ${m.pushname}`)
+		await sock.sendMessage(
+			m.jid,
+			{
+				text: 'Choose A report medium:',
+				footer: 'With love ❤️ from Nikka',
+				buttons: [
+					{
+						buttonId: `?reportmod ${match}`,
+						buttonText: {
+							displayText: 'Whatsapp',
+						},
+						type: 1,
+					},
+					{
+						buttonId: `?reportemail ${match}`,
+						buttonText: {
+							displayText: 'Email',
+						},
+						type: 1,
+					},
+				],
+				headerType: 1,
+				viewOnce: true,
 			},
 			{ quoted: m.raw }
 		);

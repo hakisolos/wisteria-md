@@ -1,13 +1,5 @@
 /** @format */
-const { nikka } = require('../lib/cmd');
-const { nikkaChat } = require('../lib/nikka-ai');
-const { isChatbotEnabled } = require('../lib/database/chatbot');
-const config = require('../config');
-const { isUserBanned } = require('./banuser');
-
-nikka(
-	{
-		on: 'text',
+/*		on: 'text',
 	},
 	async (m, { eventType }) => {
 		try {
@@ -81,3 +73,5 @@ nikka(
 		}
 	}
 );
+
+*/

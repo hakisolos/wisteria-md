@@ -3,88 +3,50 @@
 const { nikka, extractUrls } = require('../lib');
 const axios = require('axios');
 const yts = require('yt-search');
+const dl = require("../lib/utilities/dl")
 
 nikka(
 	{
-		pattern: 'ytmp3',
+		pattern: 'song',
 		desc: 'download yt music',
 		public: false,
 		category: 'download',
 		react: true,
 	},
 	async (m, { match }) => {
-		const url = match; //|| extractUrls(m.quoted.text);
+		const q = match; 
 		if (!match)
 			return m.reply(`hey ${m.pushName}, provide a youtube url to download`);
-		const response = await axios.get(
-			`https://kord-api.vercel.app/yt-song?url=${url}`
-		);
-		const res = response.data;
-		const details = {
-			//image: res.thumbnail,
-			title: res.Title,
-			url: res.fileUrl,
-		};
+		const url = await dl(q, "mp3")
 		await m.client.sendMessage(m.jid, {
-			audio: { url: details.url },
-			mimetype: 'audio/mpeg',
-			ptt: false,
-			contextInfo: {
-				externalAdReply: {
-					title: details.title,
-					body: 'powered by Nikka Tech ',
-					sourceUrl: 'https://whatsapp.co m/channel/0029VaoLotu42DchJmXKBN3L',
-					mediaUrl: url,
-					mediaType: 1,
-					showAdAttribution: true,
-					renderLargerThumbnail: false,
-					thumbnailUrl: 'https://files.catbox.moe/z0k3fv.jpg',
-				},
-			},
+			audio: { url: url },
+			mimetype: 'audio/mp4',
+			quoted: m.raw
 		});
+		
+		
 	}
 );
 
 nikka(
 	{
-		pattern: 'ytmp4',
+		pattern: 'video',
 		desc: 'download yt vid',
 		public: false,
 		category: 'download',
 		react: true,
 	},
 	async (m, { match }) => {
-		const url = match;
+		const q = match; 
 		if (!match)
 			return m.reply(`hey ${m.pushName}, provide a youtube url to download`);
-
-		const response = await axios.get(
-			`https://kord-api.vercel.app/ytmp4?url=${url}&quality=360`
-		);
-		const res = response.data.data; // ✅ Corrected line
-
-		const details = {
-			title: res.title,
-			url: res.downloadUrl,
-		};
-
+		const url = await dl(q, "720")
 		await m.client.sendMessage(m.jid, {
-			video: { url: details.url },
+			audio: { url: url },
 			mimetype: 'video/mp4',
-			ptt: false,
-			contextInfo: {
-				externalAdReply: {
-					title: details.title,
-					body: 'powered by Nikka Tech ',
-					sourceUrl: 'https://whatsapp.com/channel/0029VaoLotu42DchJmXKBN3L',
-					mediaUrl: url,
-					mediaType: 1,
-					showAdAttribution: true,
-					renderLargerThumbnail: false,
-					thumbnailUrl: 'https://files.catbox.moe/z0k3fv.jpg',
-				},
-			},
+			quoted: m.raw
 		});
+		
 	}
 );
 
@@ -107,14 +69,14 @@ nikka(
 				footer: 'With love ❤️ from Nikka',
 				buttons: [
 					{
-						buttonId: `${m.prefix}ytmp3 ${url}`,
+						buttonId: `${m.prefix}song ${url}`,
 						buttonText: {
 							displayText: 'audio',
 						},
 						type: 1,
 					},
 					{
-						buttonId: `${m.prefix}ytmp4 ${url}`,
+						buttonId: `${m.prefix}video ${url}`,
 						buttonText: {
 							displayText: 'video',
 						},

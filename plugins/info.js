@@ -8,7 +8,7 @@ nikka(
 		desc: 'Check bot responsiveness',
 		usage: '!ping',
 		category: 'info',
-		react: true,
+		react: false,
 		public: false,
 	},
 	async m => {
@@ -397,7 +397,7 @@ nikka(
 				headerType: 1,
 				viewOnce: true,
 			},
-			{ quoted: null }
+			{ quoted: m.raw }
 		);
 	}
 );
