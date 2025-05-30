@@ -200,11 +200,26 @@ Category: ${cmd.category}\`\`\``);
 
 		const randomImage =
 			menuImages[Math.floor(Math.random() * menuImages.length)];
-
-		await global.sock.sendMessage(m.jid, {
-			image: { url: randomImage },
-			caption: finalMenu,
-		});
+		
+			return await sock.sendMessage(
+				m.jid,
+				{
+					text: finalMenu,
+					contextInfo: {
+						externalAdReply: {
+							title: 'NIKKA | MENU' ,
+							body: 'NIKKA SOCIETY',
+							sourceUrl: '',
+							mediaUrl: '',
+							mediaType: 1,
+							showAdAttribution: true,
+							renderLargerThumbnail: false,
+							thumbnailUrl: randomImage,
+						},
+					},
+				},
+				{ quoted: m.raw }
+			);
 	}
 );
 

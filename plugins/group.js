@@ -38,35 +38,37 @@ nikka(
 
 nikka(
 	{
-		pattern: 'kick',
-		public: false,
-		desc: 'add participant',
-		usage: '!kick <mention> or reply',
-		react: true,
-		category: 'group',
+	  pattern: 'kick',
+	  public: false,
+	  desc: 'remove participant',
+	  usage: '!kick <mention>',
+	  react: true,
+	  category: 'group',
 	},
 	async (m, { match }) => {
-		const jid = m.jid;
-		if (!m.isGroup)
-			return await m.reply('_This command is specifically for groups_');
-		let num = m.quoted.sender;
-		if (!num)
-			return await m.reply(
-				`hi ${m.pushName}, please mention or tag a user to remove`
-			);
-		let user = num.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-		let admin = await isAdmin(m.jid, m.sender, m.client);
-		if (!admin)
-			return m.reply(
-				`hey ${m.pushName}, sorry you or the bot needs to be an admin`
-			);
-		await global.sock.groupParticipantsUpdate(m.jid, [user], 'remove');
-		return await global.sock.sendMessage(m.jid, {
-			text: `*_@${user.split('@')[0]}, has been removed from The Group!_*`,
-			mentions: [user],
-		});
+	  const jid = m.jid;
+  
+	  if (!m.isGroup)
+		return await m.reply('_This command is specifically for groups_');
+  
+	  if (!m.mentions || m.mentions.length === 0)
+		return await m.reply(` ${m.pushName}, please *mention* the user you wanna kick `);
+  
+	  const user = m.mentions[0]; 
+  
+	  const admin = await isAdmin(m.jid, m.sender, m.client);
+	  if (!admin)
+		return m.reply(`sir ${m.pushName}, either you or I need to be admin first 😢`);
+  
+	  await global.sock.groupParticipantsUpdate(m.jid, [user], 'remove');
+  
+	  return await global.sock.sendMessage(m.jid, {
+		text: `*👢 @${user.split('@')[0]} has been kicked out!*`,
+		mentions: [user],
+	  });
 	}
-);
+  );
+  
 
 nikka(
 	{
@@ -195,54 +197,6 @@ nikka(
 	}
 );
 
-nikka(
-	{
-		pattern: 'tagall',
-		public: false,
-		desc: 'tagall',
-		usage: '!tagall',
-		react: true,
-		category: 'group',
-	},
-	async m => {
-		if (!m.isGroup)
-			return await m.reply('_This command is specifically for groups_');
-		const { participants } = await global.sock.groupMetadata(m.jid);
-		let text = '';
-		for (let mem of participants) {
-			text += `🌸 @${mem.id.split('@')[0]}\n`;
-		}
-		global.sock.sendMessage(m.jid, {
-			text: text.trim(),
-			mentions: participants.map(a => a.id),
-		});
-	}
-);
-
-nikka(
-	{
-		pattern: 'tag',
-		public: false,
-		desc: 'Tag all members with a message',
-		usage: '!tag <message> or reply',
-		react: true,
-		category: 'group',
-	},
-	async (m, { match }) => {
-		let arg = match || m.quoted?.text;
-		if (!arg)
-			return await m.reply(`_Hi ${m.pushName}, give me a message to tag._`);
-		if (!m.isGroup)
-			return await m.reply(`_This command is for groups only, love!_`);
-
-		const { participants } = await global.sock.groupMetadata(m.jid);
-
-		global.sock.sendMessage(m.jid, {
-			text: arg,
-			mentions: participants.map(a => a.id),
-		});
-	}
-);
 
 nikka(
 	{
@@ -295,3 +249,89 @@ nikka(
 		}
 	}
 );
+
+
+nikka(
+	{
+		pattern: "tagall",
+		desc: "tags all group mem",
+		public: false,
+		react: true,
+		category: "group"
+	},
+	async(m, {match}) => {
+		if (!m.isGroup) {
+			return await m.reply('_This command is specifically for groups_');
+		}
+
+		const { participants } = await global.sock.groupMetadata(m.jid);
+
+		return await m.client.relayMessage(
+			m.jid,
+			{
+				extendedTextMessage: {
+					text: `@${m.jid} ${match ?? ''}`,
+					contextInfo: {
+						mentionedJid: participants.map(p => p.id),
+						groupMentions: [
+							{ groupJid: m.jid, groupSubject: 'all' },
+						],
+					},
+				},
+			},
+			{}
+		);
+	}
+)
+
+nikka(
+	{
+		pattern: "newgc",
+		desc: "creates new gc",
+		public: false,
+		react: true,
+		category: "group",
+	},
+	async(m, {match}) => {
+		if(!match) return m.reply(`invalid usage, use:\n ${m.prefix}newgc <gcname>`)
+		/*if (!m.isGroup) {
+			return await m.reply('_This command is specifically for groups_');
+		}
+		const groupMetadata = await m.client.groupMetadata(m.jid);
+			const groupAdmins = groupMetadata.participants
+				.filter(p => p.admin)
+				.map(p => p.id);
+			if (!groupAdmins.includes(m.sender) && !m.isCreator) {
+				return m.reply(' This command can only be used by admins!');
+			} */
+		const grp = await m.client.groupCreate(match.trim(), [m.sender])
+		await m.client.sendMessage(grp.id, { text: `WELCOME TO ${match.trim()}` })
+		return m.reply("_group successfully created_")
+	}
+)
+
+
+nikka(
+	{
+	  pattern: "gname",
+	  desc: "rename gc",
+	  category: "group",
+	  react: true,
+	  public: false
+	},
+	async (m, { match }) => {
+	  if (!match) return m.reply(`invalid usage, use:\n ${m.prefix}gcname <newname>`);
+	  if (!m.isGroup) {
+		return await m.reply('_This command is specifically for groups_');
+	  }
+	  let admin = await isAdmin(m.jid, m.sender, m.client);
+	  if (!admin)
+		  return m.reply(
+			  `hey ${m.pushName}, sorry you or the bot needs to be an admin`
+		  );
+	  const newName = match.trim();
+	  await m.client.groupUpdateSubject(m.jid, newName);
+	  return m.reply(`_Group name successfully changed_`);
+	}
+  );
+  

@@ -112,7 +112,7 @@ nikka(
 				'Please reply to a message to check the device type.'
 			);
 		}
-		const device = require('baileys-pro').getDevice(m.quoted.key.id);
+		const device = require('baileys').getDevice(m.quoted.key.id);
 		let deviceType = '';
 		switch (device) {
 			case 'android':
