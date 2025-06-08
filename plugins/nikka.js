@@ -4,6 +4,20 @@ const { nikka } = require("../lib");
 const config = require("../config");
 const { nikkaChat, clearHistory, getHistory } = require("../lib/nikka-ai");
 
+const stickerUrls = [
+  "https://cdn.kordai.biz.id/serve/5ibpbcgTuOA4.webp",
+  "https://cdn.kordai.biz.id/serve/9LuMCAVqaYSe.webp",
+  "https://cdn.kordai.biz.id/serve/5ibpbcgTuOA4.webp",
+  "https://cdn.kordai.biz.id/serve/bLyCztL6hYFV.webp",
+  "https://cdn.kordai.biz.id/serve/YkAYrAN9o4Dy.webp"
+];
+
+let stickerIndex = 0;
+function getNextStickerUrl() {
+  const url = stickerUrls[stickerIndex];
+  stickerIndex = (stickerIndex + 1) % stickerUrls.length;
+  return url;
+}
 nikka(
   {
     on: "reply",
@@ -33,6 +47,12 @@ nikka(
         });
 
         await m.reply(response);
+
+        await m.client.sendMessage(
+          m.jid,
+          { sticker: { url: getNextStickerUrl() } }
+        );
+
       } catch (aiError) {
         console.error("Error getting AI response:", aiError);
         if (
