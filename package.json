@@ -13,8 +13,9 @@
   "type": "commonjs",
   "dependencies": {
     "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "Nurutomo/BaileysPatchFix#patch-1",
     "axios": "^1.9.0",
-    "baileys": "github:WhiskeySockets/Baileys",
+    "baileys": "github:whiskeysockets/baileys",
     "better-sqlite3": "^11.9.1",
     "body-parser": "^2.2.0",
     "chalk": "^4.1.2",

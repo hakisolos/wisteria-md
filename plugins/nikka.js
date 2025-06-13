@@ -24,11 +24,12 @@ nikka(
   },
   async (m, { eventType }) => {
     try {
+      if(!m.isGroup) return
       if (m.fromMe) return;
       if (m.body.startsWith("?")) return;
 
       const chatbotEnabled = await isChatbotEnabled(m.jid);
-      if (!chatbotEnabled) return;
+      //if (!chatbotEnabled) return;
 
       const userMessage = m.body;
       if (!userMessage) return;
