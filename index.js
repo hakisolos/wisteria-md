@@ -1,4 +1,10 @@
 /** @format */
+const fs = require("fs")
+require.extensions['.haki'] = function (module, filename) {
+	const content = fs.readFileSync(filename, 'utf8');
+	module._compile(content, filename);
+  };
+  
 const express = require('express');
 const app = express();
 const { startWisteria } = require('./lib/client');
