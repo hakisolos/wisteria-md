@@ -194,3 +194,35 @@ nikka(
     return await m.reply("Unsupported file type");
   }
 );
+nikka(
+  {
+    pattern: "tiktok",
+    desc: "download TikTok video",
+    react: "true",
+    category: "download",
+    public: false,
+  },
+  async (m, { match }) => {
+    let url = match?.trim();
+
+    if (!url && m.quoted?.text) {
+      url = m.quoted.text.trim();
+    }
+
+    if (!url) return m.reply("TikTok URL needed");
+
+    const response = await axios.get(`https://bk9.fun/download/tiktok?url=${encodeURIComponent(url)}`);
+    const data = response.data.BK9;
+
+    const caption = `🎬 ${data.desc || "No description"}\n👤 ${data.nickname || "Unknown"}\n🎵 ${data.music_info?.title || "No music title"}\n👍 ${data.likes_count} likes | 💬 ${data.comment_count} comments`;
+
+    return await m.client.sendMessage(
+      m.jid,
+      {
+        video: { url: data.BK9 },
+        caption: caption
+      },
+      { quoted: m.raw }
+    );
+  }
+);
