@@ -141,3 +141,21 @@ nikka(
     
     
 
+nikka(
+    {
+        pattern: "url",
+        desc: "url",
+        react: "true",
+        category: "converter",
+        public: true,
+        
+    },
+    async(m) => {
+    if(!m.quoted || m.quoted.type !=="imageMessage"|| m.quoted.type !=="stickerMessage" || m.quoted.type !=="videoMessage" || m.quoted.type !=="audioMessage") return m.reply("please reply to an image")
+    var buff = await m.quoted.download()
+    var link = await m.upload(buff)
+	return await m.reply(link)
+    
+    
+	}
+)

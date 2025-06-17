@@ -14,7 +14,7 @@ module.exports = {
 	ANTI_DELETE: toBool(process.env.ANTI_DELETE) || true,
 	ANTILINK: process.env.ANTILINK || 'kick',
 	PAIR_NUMBER: '94703981512',
-	//OWNERLID: '113439162822839@lid',
+	NEXO_API_KEY: "elDrYH7GsuIeBkyw1",
 	USE_PAIRING_CODE: true,
 	PRINT_QR: true,
 	BOT_IMG: process.env.BOT_IMG || 'https://files.catbox.moe/z0k3fv.jpg',

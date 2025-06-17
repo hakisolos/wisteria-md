@@ -10,7 +10,6 @@ nikka(
 		public: true,
 		react: true,
 		use: 'card <index',
-		category: 'cards',
 	},
 	async (m, { match }) => {
 		const query = match.trim();

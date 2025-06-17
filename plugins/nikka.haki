@@ -1,5 +1,5 @@
 /** @format */
-const { isChatbotEnabled } = require("../lib/database/chatbot");
+const CHATBOT = require("../lib/database/chatbot")
 const { nikka } = require("../lib");
 const config = require("../config");
 const { nikkaChat, clearHistory, getHistory } = require("../lib/nikka-ai");
@@ -20,6 +20,31 @@ function getNextStickerUrl() {
 }
 nikka(
   {
+    pattern: "nikka",
+    desc: "nikkka chatbot",
+    public: false,
+    react: true,
+    category: "ai"
+  },
+  async(m, {match}) => {
+    if(!match) return m.reply(`use ${m.prefix}nikka on | off`)
+    var input = match.trim()
+    if(input === "on") {
+      var isEnabled = await CHATBOT.isEnabled(m.jid)
+      if(isEnabled) return m.reply("nikka already active")
+      await CHATBOT.enable(m.jid)
+      await m.reply(`_nikka activated for this chat_`)
+    }
+    else if(input === "off") {
+      var isEnabled = await CHATBOT.isEnabled(m.jid)
+      if(!isEnabled) return m.reply("nikka already inactive")
+      await CHATBOT.disable(m.jid)
+      await m.reply(`_nikka deactivated for this chat_`)
+    } else return m.reply(`invalid usage; use: \n\n ${m.prefix}nikka on | of`)
+  }
+)
+nikka(
+  {
     on: "reply",
   },
   async (m, { eventType }) => {
@@ -28,8 +53,8 @@ nikka(
       if (m.fromMe) return;
       if (m.body.startsWith("?")) return;
 
-      const chatbotEnabled = await isChatbotEnabled(m.jid);
-      //if (!chatbotEnabled) return;
+      var isEnabled = await CHATBOT.isEnabled(m.jid)
+      if(!isEnabled) return 
 
       const userMessage = m.body;
       if (!userMessage) return;
@@ -61,7 +86,7 @@ nikka(
           !aiError.message.includes("timeout")
         ) {
           await m.reply(
-            "Gomen nasai! I encountered an error while processing your message. 😔"
+            "Gomen nasai! I encountered an error while processing your message. "
           );
         }
       }

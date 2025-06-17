@@ -9,31 +9,7 @@ const {
 	isChatbotEnabled,
 } = require('../lib/database/chatbot');
 
-nikka(
-	{
-		pattern: 'chatbot',
-		desc: 'enable/disable chatbot',
-		public: false,
-		react: true,
-		category: 'ai',
-	},
-	async (m, { match }) => {
-		if (!match)
-			return m.reply(`Use ${m.prefix}chatbot on or ${m.prefix}chatbot off`);
-		const cmd = match.toLowerCase();
-		if (cmd === 'on') {
-			await enableChatbot(m.jid);
-			return await m.react('✅');
-		} else if (cmd === 'off') {
-			await disableChatbot(m.jid);
-			return await m.react('✅');
-		} else {
-			return await m.reply(
-				`Invalid option! Use ${m.prefix}chatbot on or ${m.prefix}chatbot off`
-			);
-		}
-	}
-);
+
 
 nikka(
 	{
@@ -41,6 +17,7 @@ nikka(
 		desc: 'gemini ai',
 		public: true,
 		react: true,
+		category: 'ai',
 	},
 	async (m, { match }) => {
 		const q = match.trim();
@@ -73,6 +50,7 @@ nikka(
 		desc: 'groq ai',
 		public: true,
 		react: true,
+		category: 'ai',
 	},
 	async (m, { match }) => {
 		const q = match.trim();
@@ -105,6 +83,7 @@ nikka(
 		desc: 'llama ai',
 		public: true,
 		react: true,
+		category: 'ai',
 	},
 	async (m, { match }) => {
 		const q = match.trim();
@@ -137,6 +116,7 @@ nikka(
 		desc: 'meta ai',
 		public: true,
 		react: true,
+		category: 'ai',
 	},
 	async (m, { match }) => {
 		const q = match.trim();
@@ -169,6 +149,7 @@ nikka(
 		desc: 'dalle ai',
 		public: true,
 		react: true,
+		category: 'ai',
 	},
 	async (m, { match }) => {
 		const q = match.trim();
