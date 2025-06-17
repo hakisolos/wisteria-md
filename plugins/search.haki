@@ -27,3 +27,34 @@ nikka(
     }
 
 )
+nikka(
+    {
+        pattern: "pixabay",
+        desc: "pixabay search",
+        react: "true",
+        category: "search",
+        public: false,
+        
+    },
+    async(m, {match}) => {
+    if(!match) return m.reply("query needed")
+    if(match.includes(",")) {
+       var q1 = match.split(",")[0]
+       var q2 = parseInt(match.split(",")[1].trim(), 10)
+       const response = await axios.get(`https://bk9.fun/search/pixabay?q=${q1}`)
+       var urls = response.data.BK9
+       for (let i = 0; i < q2; i++){
+        await m.client.sendMessage(m.jid, {image: {url: urls[i] }})
+       }
+    }else{
+        const q = match.trim()
+        const response = await axios.get(`https://bk9.fun/search/pixabay?q=${q}`)
+       var urls = response.data.BK9
+       for (let i = 0; i < 5;  i++){
+        await m.client.sendMessage(m.jid, {image: {url: urls[i] }})
+       }
+    }
+    
+    }
+
+)
