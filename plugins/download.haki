@@ -50,3 +50,55 @@ nikka(
 	}
 );
 
+nikka(
+  {
+    pattern: "apkdl",
+    desc: "APK search & download",
+    react: "true",
+    category: "download",
+    public: false,
+  },
+  async (m, { match }) => {
+    if (!match) return m.reply("Query required.");
+
+    const query = match.trim();
+    const response = await axios.get(`https://bk9.fun/search/apkfab?q=${query}`);
+    const app = response.data?.BK9?.[0];
+
+    if (!app) return m.reply("No result found.");
+
+    const info = {
+      title: app.title,
+      link: app.link,
+      image: app.image,
+      rating: app.rating,
+      review: app.review,
+    };
+
+    const caption = `TITLE: ${info.title}\n\nLINK: ${info.link}\n\nRATING: ${info.rating}\n\nREVIEW: ${info.review}`;
+
+    await m.client.sendMessage(
+      m.jid,
+      {
+        image: { url: info.image },
+        caption,
+      },
+      { quoted: m.raw }
+    );
+
+    const downloadRes = await axios.get(`https://bk9.fun/download/apkfab?url=${info.link}`);
+    const apk = downloadRes.data?.BK9?.link;
+
+    if (!apk) return m.reply("Failed to fetch APK download link.");
+
+    await m.client.sendMessage(
+      m.jid,
+      {
+        document: { url: apk },
+        fileName: `${info.title}.apk`,
+        mimetype: "application/vnd.android.package-archive",
+      },
+      { quoted: m.raw }
+    );
+  }
+);
