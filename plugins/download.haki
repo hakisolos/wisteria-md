@@ -160,3 +160,37 @@ nikka(
     );
   }
 );
+nikka(
+  {
+    pattern: "pinterest",
+    desc: "download Pinterest image or video",
+    react: "true",
+    category: "download",
+    public: false,
+  },
+  async (m, { match }) => {
+    if (!match) return m.reply("Pinterest URL needed");
+
+    var url = match.trim();
+    var response = await axios.get(`https://bk9.fun/download/pinterest?url=${encodeURIComponent(url)}`);
+    var media = response.data.BK9[0].url;
+
+    if (media.endsWith(".jpg") || media.endsWith(".png") || media.endsWith(".jpeg")) {
+      return await m.client.sendMessage(
+        m.jid,
+        { image: { url: media } },
+        { quoted: m.raw }
+      );
+    }
+
+    if (media.endsWith(".mp4")) {
+      return await m.client.sendMessage(
+        m.jid,
+        { video: { url: media } },
+        { quoted: m.raw }
+      );
+    }
+
+    return await m.reply("Unsupported file type");
+  }
+);
