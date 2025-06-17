@@ -50,30 +50,3 @@ nikka(
 	}
 );
 
-nikka(
-    {
-        pattern: "apkfab",
-        desc: "apk search",
-        react: "true",
-        category: "search",
-        public: false,
-        
-    },
-    async(m, {match}) => {
-    if(!match) return m.reply("query needed")
-    var query = match.trim()
-    var response = await axios.get(`https://bk9.fun/search/apkfab?q=${query}`)
-    res = response.data.BK9[0]
-    var data = {
-        title: res.title,
-        link: res.link,
-        img: res.image,
-        rating: res.rating,
-        review: res.review
-    }
-    var text = `TITLE: ${data.title}\n\n LINK: ${data.link}\n\n RATING: ${data.rating}\n\n REVIEW: ${data.review}`
-    return await m.client.sendMessage(m.jid, {image: {url: data.img}, caption: text})
-    
-    }
-
-)
