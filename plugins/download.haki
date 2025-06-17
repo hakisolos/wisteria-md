@@ -132,3 +132,31 @@ nikka(
     }
   }
 );
+nikka(
+  {
+    pattern: "insta",
+    desc: "download instagram media",
+    react: "true",
+    category: "download",
+    public: false,
+  },
+  async (m, { match }) => {
+    if (!match) return m.reply("Instagram URL needed");
+
+    const response = await axios.get(`https://bk9.fun/download/instagram2?url=${encodeURIComponent(match.trim())}`);
+    const data = response.data.BK9;
+
+    // Find first video
+    const video = data.formats.find((f) => f.type === "video");
+
+    if (!video?.url) return m.reply("No video found in this post");
+
+    return await m.client.sendMessage(
+      m.jid,
+      {
+        video: { url: video.url },
+      },
+      { quoted: m.raw }
+    );
+  }
+);
