@@ -122,3 +122,22 @@ nikka(
 		});
 	}
 );
+nikka(
+    {
+        pattern: "upscale",
+        desc: "upscale search",
+        react: "true",
+        category: "converter",
+        public: false,
+        
+    },
+    async(m) => {
+    if(!m.quoted || m.quoted.type !=="imageMessage") return m.reply("please reply to an image")
+    var buff = await m.quoted.download()
+    var link = await m.upload(buff)
+    var upscaled = `https://bk9.fun/tools/enhance?url=${link.trim()}`
+    return await m.sendFile(upscaled)
+        })
+    
+    
+
