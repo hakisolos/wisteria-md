@@ -4,7 +4,7 @@ nikka(
     pattern: "tts2",
     desc: "Text to Speech",
     category: "tools",
-    react: "🗣️",
+    react: true,
     public: false,
   },
   async (m, { match }) => {

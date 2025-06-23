@@ -16,7 +16,8 @@ module.exports = {
 	PAIR_NUMBER: '94703981512',
 	NEXO_API_KEY: "elDrYH7GsuIeBkyw1",
 	USE_PAIRING_CODE: true,
-	PRINT_QR: true,
+	PRINT_QR: false,
+	SESSION_ID: "ere",
 	BOT_IMG: process.env.BOT_IMG || 'https://files.catbox.moe/z0k3fv.jpg',
 	GREETINGS: process.env.GREETINGS || true,
 	MODS: ['923093051104', '2349112171078', "2349067339193"]

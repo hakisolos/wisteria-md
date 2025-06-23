@@ -7,7 +7,7 @@ require.extensions['.haki'] = function (module, filename) {
   
 const express = require('express');
 const app = express();
-const { startWisteria } = require('./lib/client');
+const { startNik } = require('./lib/client');
 const NodeCache = require('node-cache');
 const PORT = process.env.PORT || 8000;
 global.cache = {
@@ -48,9 +48,9 @@ app.get('/status', (req, res) => {
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
-	startWisteria()
+	startNik()
 		.then(() => {
-			console.log('Wisteria bot connected successfully');
+			console.log('init');
 		})
 		.catch(err => {
 			console.error('Failed to initialize Wisteria bot:', err);
