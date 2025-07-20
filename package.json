@@ -10,12 +10,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "axios": "^1.9.0",
     "baileys": "^6.7.18",
-    "better-sqlite3": "^11.9.1",
     "body-parser": "^2.2.0",
     "chalk": "^4.1.2",
     "discord-mongoose-economy": "^1.2.0",
