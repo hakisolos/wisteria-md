@@ -1,0 +1,9 @@
+so i want to like emmmmm
+
+
+create the bot in such a way that 
+
+1. when users connect for the first time, their user name and their user id are stored in database
+
+then they are prompted to signup for nikka society to use some exclusive commands
+and when they do ill be able to magnage evrrything from user end pliugins and shit to everything and add billions of commands and publish
